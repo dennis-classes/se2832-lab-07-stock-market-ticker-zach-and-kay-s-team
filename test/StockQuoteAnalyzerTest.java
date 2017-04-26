@@ -5,6 +5,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -39,9 +40,82 @@ public class StockQuoteAnalyzerTest {
         audioMock = null;
     }
 
+    // invalid name of symbol
     @Test(expectedExceptions = InvalidStockSymbolException.class)
     public void constructorShouldThrowExceptionWhenSymbolIsInvalid() throws Exception {
         analyzer = new StockQuoteAnalyzer("ZZZZZZZZZ", generatorMock, audioMock);
+    }
+
+    // invalid stockQuoteSource
+    @Test(expectedExceptions = NullPointerException.class)
+    public void constructorShouldThrowExceptionWhenQuoteSourceIsNull() throws Exception {
+        analyzer = new StockQuoteAnalyzer("GOOG", null, audioMock);
+    }
+
+    // when we cannot call
+    @Test(expectedExceptions = StockTickerConnectionError.class)
+    public void refreshShouldThrowStockTickerConnectionErrorWhenUnableToConnect() throws Exception {
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+        doThrow(new StockTickerConnectionError("Unable to connect with Stock Ticker Source.")).when(generatorMock).getCurrentQuote();
+        // when = arrange
+        // then = assert
+        // or verify
+        analyzer.refresh();
+    }
+
+    // when we can call
+    @Test
+    public void refreshShouldThrowShouldSetValuesWhenConnected() throws Exception {
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+    }
+
+    @Test
+    public void playAppropriateAudioShouldReturnHappyMusicWhenChangeIsGreaterThanZero() throws Exception {
+        StockQuote quote = new StockQuote("GOOG", 5, 5, 5);
+        when(generatorMock.getCurrentQuote()).thenReturn(quote);
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+        analyzer.refresh();
+        analyzer.playAppropriateAudio();
+        verify(audioMock, times(1)).playHappyMusic();
+    }
+
+    @Test
+    public void playAppropriateAudioShouldReturnSadMusicWhenChangeIsGreaterThanZero() throws Exception {
+        StockQuote quote = new StockQuote("GOOG", 5, 5, -4);
+        when(generatorMock.getCurrentQuote()).thenReturn(quote);
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+        analyzer.refresh();
+        analyzer.playAppropriateAudio();
+        verify(audioMock, times(1)).playSadMusic();
+    }
+
+    @Test
+    public void playAppropriateAudioShouldReturnErrorMusicWhenChangeIsGreaterThanZero() throws Exception {
+        StockQuote quote = new StockQuote("GOOG", 5, 5, -4);
+        when(generatorMock.getCurrentQuote()).thenReturn(quote);
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+        analyzer.playAppropriateAudio();
+        verify(audioMock, times(1)).playErrorMusic();
+    }
+
+
+    @Test
+    public void testOne() throws Exception {
+        StockQuote quote = new StockQuote("GOOG", 0, 0, 0);
+        when(generatorMock.getSymbol()).thenReturn("GOOG");
+
+        String sym = quote.getSymbol();
+        assertEquals("GOOG", sym);
+
+    }
+
+    @Test
+    public void testTwo() throws Exception {
+        StockQuote quote = new StockQuote("AAPL", 0,0,0);
+        when(generatorMock.getCurrentQuote()).thenReturn(quote);
+
+        analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
+
     }
 
     @Test
