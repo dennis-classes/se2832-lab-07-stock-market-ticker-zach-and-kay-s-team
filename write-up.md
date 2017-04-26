@@ -10,4 +10,9 @@ Kay Thao
 | 3        | Line 204             | Calculation of percent has an extra factor of 10, any percent returned is ten times expected.                                                                                                         | Change multiplier from 100000 to 10000   |
 | 4        | Line 220             | It calls current price - current price, which always returns zero.                                                                                                         | Change to subtract from previous quote instead of current.   |
 | 5        | Line 219-221             | Does not check whether there have been stocks loaded before trying to calculate                                                                                                         | Added null checks for previous quote (subsumes checking for current quote)  |
-| 5        | Line 119             | Plays happy music whenever percent is over zero; expected is greater than or equal to 1%.                                                                                                        | Changes > 0 to >= 1  |
+| 6        | Line 119             | Plays happy music whenever percent is over zero; expected is greater than or equal to 1%.                                                                                                        | Changes > 0 to >= 1  |
+
+# Statement Coverage
+We achieved 100% coverage.
+
+[<img src="http://i.imgur.com/FuJPW0l.png">](http://i.imgur.com/FuJPW0l.png)
