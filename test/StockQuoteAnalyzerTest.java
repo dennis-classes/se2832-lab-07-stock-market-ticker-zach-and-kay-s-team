@@ -1,23 +1,13 @@
 import exceptions.InvalidAnalysisState;
 import exceptions.InvalidStockSymbolException;
 import exceptions.StockTickerConnectionError;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertEquals;
 
 public class StockQuoteAnalyzerTest {
 
@@ -40,7 +30,20 @@ public class StockQuoteAnalyzerTest {
         audioMock = null;
     }
 
-    // invalid name of symbol
+    // valid test
+    @Test
+    public void constructorShouldThrowStockTickerConnectionErrorWhenQuoteCannotConnect() throws Exception {
+
+        analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
+    }
+
+    //null name
+    @Test(expectedExceptions = NullPointerException.class)
+    public void constructorThrowNullPointerWhenStockNameIsNull() throws Exception {
+        analyzer = new StockQuoteAnalyzer(null, generatorMock, audioMock);
+    }
+
+    //invalid name
     @Test(expectedExceptions = InvalidStockSymbolException.class)
     public void constructorShouldThrowExceptionWhenSymbolIsInvalid() throws Exception {
         analyzer = new StockQuoteAnalyzer("ZZZZZZZZZ", generatorMock, audioMock);
@@ -65,10 +68,11 @@ public class StockQuoteAnalyzerTest {
 
     // when we can call
     @Test
-    public void refreshShouldThrowShouldSetValuesWhenConnected() throws Exception {
+    public void refreshShouldThrowErrorWhenSetValuesWhenConnected() throws Exception {
         analyzer = new StockQuoteAnalyzer("GOOG", generatorMock, audioMock);
     }
 
+    // test for happy music
     @Test
     public void playAppropriateAudioShouldReturnHappyMusicWhenChangeIsGreaterThanZero() throws Exception {
         StockQuote quote = new StockQuote("GOOG", 5, 5, 5);
@@ -79,6 +83,7 @@ public class StockQuoteAnalyzerTest {
         verify(audioMock, times(1)).playHappyMusic();
     }
 
+    // test for sad music
     @Test
     public void playAppropriateAudioShouldReturnSadMusicWhenChangeIsGreaterThanZero() throws Exception {
         StockQuote quote = new StockQuote("GOOG", 5, 5, -4);
@@ -89,6 +94,7 @@ public class StockQuoteAnalyzerTest {
         verify(audioMock, times(1)).playSadMusic();
     }
 
+    // test for error music
     @Test
     public void playAppropriateAudioShouldReturnErrorMusicWhenChangeIsGreaterThanZero() throws Exception {
         StockQuote quote = new StockQuote("GOOG", 5, 5, -4);
@@ -98,26 +104,7 @@ public class StockQuoteAnalyzerTest {
         verify(audioMock, times(1)).playErrorMusic();
     }
 
-
-    @Test
-    public void testOne() throws Exception {
-        StockQuote quote = new StockQuote("GOOG", 0, 0, 0);
-        when(generatorMock.getSymbol()).thenReturn("GOOG");
-
-        String sym = quote.getSymbol();
-        assertEquals("GOOG", sym);
-
-    }
-
-    @Test
-    public void testTwo() throws Exception {
-        StockQuote quote = new StockQuote("AAPL", 0,0,0);
-        when(generatorMock.getCurrentQuote()).thenReturn(quote);
-
-        analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
-
-    }
-
+    // Test for valid symbol
     @Test
     public void getSymbolShouldReturnValidSymbol() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
@@ -125,6 +112,7 @@ public class StockQuoteAnalyzerTest {
         assertEquals(symbol,"AAPL");
     }
 
+    // test for correct price change
     @Test
     public void getCurrentPriceShouldReturnCorrectValue() throws Exception {
         StockQuote quote = new StockQuote("AAPL",3,10,5);
@@ -135,12 +123,14 @@ public class StockQuoteAnalyzerTest {
         assertEquals(quote.getLastTrade(), price, 0.001);
     }
 
+    // test for exception thrown
     @Test (expectedExceptions = InvalidAnalysisState.class)
     public void getCurrentPriceShouldThrowExceptionIfNoStockQuoteIsLoaded() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
         analyzer.getCurrentPrice();
     }
 
+    // test for correct previous close value
     @Test
     public void getPreviousCloseReturnsCorrectValue() throws Exception {
         StockQuote quote = new StockQuote("AAPL",3,10,5);
@@ -151,12 +141,14 @@ public class StockQuoteAnalyzerTest {
         assertEquals(quote.getClose(), price, 0.001);
     }
 
+    // test for correct excpetion thrown
     @Test (expectedExceptions = InvalidAnalysisState.class)
-    public void getPreviousCloseeShouldThrowExceptionIfNoStockQuoteIsLoaded() throws Exception {
+    public void getPreviousCloseShouldThrowExceptionIfNoStockQuoteIsLoaded() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
         analyzer.getPreviousClose();
     }
 
+    // test for change value
     @Test
     public void getChangeSinceCloseReturnsCorrectValue() throws Exception {
         StockQuote quote = new StockQuote("AAPL",3,10,5);
@@ -167,12 +159,14 @@ public class StockQuoteAnalyzerTest {
         assertEquals(quote.getChange() - quote.getClose(), price, 0.001);
     }
 
+    // test for correct exception
     @Test (expectedExceptions = InvalidAnalysisState.class)
     public void getChangeSinceCloseShouldThrowExceptionIfNoStockQuoteIsLoaded() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
         analyzer.getChangeSinceClose();
     }
 
+    // test for correct percent change
     @Test
     public void getPercentChangeSinceCloseReturnsCorrectValue() throws Exception {
         StockQuote quote = new StockQuote("AAPL",3,10,5);
@@ -183,12 +177,14 @@ public class StockQuoteAnalyzerTest {
         assertEquals((quote.getChange() / quote.getClose()) * 100, price, 0.01);
     }
 
+    // test for correct exception thrown
     @Test (expectedExceptions = InvalidAnalysisState.class)
     public void getPercentChangeSinceCloseShouldThrowExceptionIfNoStockQuoteIsLoaded() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
         analyzer.getPercentChangeSinceClose();
     }
 
+    // test for last change
     @Test
     public void getChangeSinceLastCheckShouldReturnCorrectValue() throws Exception {
         StockQuote quote = new StockQuote("AAPL",3,10,5);
@@ -202,6 +198,7 @@ public class StockQuoteAnalyzerTest {
         assertEquals(1.0, price, 0.01);
     }
 
+    // test for correct exception
     @Test (expectedExceptions = InvalidAnalysisState.class)
     public void getChangeSinceLastCheckShouldThrowExceptionIfThereHaveNotBeenTwoChecks() throws Exception {
         analyzer = new StockQuoteAnalyzer("AAPL", generatorMock, audioMock);
