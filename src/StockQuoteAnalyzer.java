@@ -62,9 +62,6 @@ public class StockQuoteAnalyzer {
 	 *             Will be thrown if the symbol for the stock is invalid.
 	 * @throws NullPointerException
 	 *             Will be thrown if the stock quote source is null.
-	 * @throws StockTickerConnectionError
-	 *             Will be thrown if the class can not connect to the stock
-	 *             quote source.
 	 */
 
 	public StockQuoteAnalyzer(String symbol, StockQuoteGeneratorInterface stockQuoteSource,
