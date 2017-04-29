@@ -11,7 +11,7 @@ Kay Thao
 | 4        | Line 220             | It calls current price - current price, which always returns zero.                                                                                                         | Change to subtract from previous quote instead of current.   |
 | 5        | Line 219-221             | Does not check whether there have been stocks loaded before trying to calculate                                                                                                         | Added null checks for previous quote (subsumes checking for current quote)  |
 | 6        | Line 119             | Plays happy music whenever percent is over zero; expected is greater than or equal to 1%.                                                                                                        | Changes > 0 to >= 1  |
-|7         | Line 65              | StockQuoteAnalyzer never throws StockTickerConnectionError | remove the parameter 
+|7         | Line 65              | StockQuoteAnalyzer never throws StockTickerConnectionError | Remove the parameter 
 # Statement Coverage
 We achieved 100% coverage.
 
