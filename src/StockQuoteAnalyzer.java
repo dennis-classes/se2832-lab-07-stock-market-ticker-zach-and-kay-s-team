@@ -62,9 +62,6 @@ public class StockQuoteAnalyzer {
 	 *             Will be thrown if the symbol for the stock is invalid.
 	 * @throws NullPointerException
 	 *             Will be thrown if the stock quote source is null.
-	 * @throws StockTickerConnectionError
-	 *             Will be thrown if the class can not connect to the stock
-	 *             quote source.
 	 */
 
 	public StockQuoteAnalyzer(String symbol, StockQuoteGeneratorInterface stockQuoteSource,
@@ -116,7 +113,7 @@ public class StockQuoteAnalyzer {
 	public void playAppropriateAudio() {
 		if (audioPlayer != null) {
 			try {
-				if ((this.getPercentChangeSinceClose() > 0)) {
+				if ((this.getPercentChangeSinceClose() >= 1)) {
 					audioPlayer.playHappyMusic();
 				}
 				if ((this.getPercentChangeSinceClose() <= -1)) {
@@ -148,7 +145,7 @@ public class StockQuoteAnalyzer {
 	 */
 
 	public double getPreviousClose() throws InvalidAnalysisState {
-		if (currentQuote != null) {
+		if (currentQuote == null) {
 			throw new InvalidAnalysisState("No quote has ever been retrieved.");
 		}
 		return currentQuote.getClose();
@@ -182,7 +179,7 @@ public class StockQuoteAnalyzer {
 	 */
 	public double getChangeSinceClose() throws InvalidAnalysisState {
 		if (currentQuote == null) {
-			throw new NullPointerException("No quote has ever been retrieved.");
+			throw new InvalidAnalysisState("No quote has ever been retrieved.");
 		}
 		return currentQuote.getChange()-currentQuote.getClose();
 	}
@@ -201,7 +198,7 @@ public class StockQuoteAnalyzer {
 			throw new InvalidAnalysisState("No quote has ever been retrieved.");
 		}
 
-		return Math.round((100000 * this.currentQuote.getChange() / this.currentQuote.getClose())) / 100.0;
+		return Math.round((10000 * this.currentQuote.getChange() / this.currentQuote.getClose())) / 100.0;
 	}
 
 	/**
@@ -217,6 +214,9 @@ public class StockQuoteAnalyzer {
 	 *             data source.
 	 */
 	public double getChangeSinceLastCheck() throws InvalidAnalysisState {
-		return currentQuote.getLastTrade() - currentQuote.getLastTrade();
+		if(previousQuote == null) {
+			throw new InvalidAnalysisState("Has not received 2 quotes");
+		}
+		return currentQuote.getLastTrade() - previousQuote.getLastTrade();
 	}
 }
